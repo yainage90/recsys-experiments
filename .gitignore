@@ -1,0 +1,6 @@
+__pycache__
+/dataset
+*.pt
+*.pth
+*.json
+**/.DS_Store
