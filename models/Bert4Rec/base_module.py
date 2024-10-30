@@ -8,9 +8,9 @@ import torch.nn.functional as F
 class Encoder(nn.Module):
     def __init__(self, encoder_block, n_layer):
         super(Encoder, self).__init__()
-        self.layers = []
-        for _ in range(n_layer):
-            self.layers.append(copy.deepcopy(encoder_block))
+        self.layers = nn.ModuleList([
+            copy.deepcopy(encoder_block) for _ in range(n_layer)
+        ])
 
             
     def forward(self, src, src_mask):
@@ -54,7 +54,7 @@ class MultiHeadAttentionLayer(nn.Module):
         if mask is not None:
             attention_score = attention_score.masked_fill(mask==0, -1e9)
         p_attn = F.softmax(attention_score, dim=-1)
-        # p_attn = self.dropout(p_attn)
+        p_attn = self.dropout(p_attn)
         out = torch.matmul(p_attn, value) # (n_batch, h, seq_len, d_k)
         return out
 
@@ -129,8 +129,8 @@ class TokenEmbedding(nn.Module):
         self.embedding = nn.Embedding(vocab_size, d_embed)
 
     def forward(self, x):
-        # out = self.embedding(x) * math.sqrt(self.d_embed)
-        out = self.embedding(x)
+        out = self.embedding(x) * math.sqrt(self.d_embed)
+        # out = self.embedding(x)
         return out
 
         
