@@ -21,11 +21,13 @@ class Encoder(nn.Module):
 
         
 class EncoderBlock(nn.Module):
-    def __init__(self, self_attention, position_ff, d_model, device=torch.device('cpu')):
+    def __init__(self, self_attention, position_ff, d_model):
         super(EncoderBlock, self).__init__()
         self.self_attention = self_attention
         self.position_ff = position_ff
-        self.residuals = [ResidualConnectionLayer(d_model=d_model, device=device) for _ in range(2)]
+        self.residuals = nn.ModuleList([
+            ResidualConnectionLayer(d_model=d_model) for _ in range(2)
+        ])
 
     def forward(self, src, src_mask):
         out = src
@@ -100,9 +102,9 @@ class PositionWiseFeedForwardLayer(nn.Module):
 
         
 class ResidualConnectionLayer(nn.Module):
-    def __init__(self, d_model, dropout=0.1, device=torch.device('cpu')):
+    def __init__(self, d_model, dropout=0.1):
         super(ResidualConnectionLayer, self).__init__()
-        self.norm = nn.LayerNorm(d_model).to(device)
+        self.norm = nn.LayerNorm(d_model)
         self.dropout = nn.Dropout(p=dropout)
 
     def forward(self, x, sub_layer):
